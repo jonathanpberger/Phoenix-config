@@ -718,7 +718,7 @@ bind_key('return', 'Maximize Window', mash, () => focused().toFullScreen())
 Switch to or launch apps - fix these up to use whatever Apps you want on speed dial.
 
 ```js @code
-bind_key('1', 'Show App Name', mash, showAppName) 
+bind_key('1', 'Show App Name', smash, showAppName)
 bind_key('E', 'Launch Emacs', mash, () => App.focusOrStart(EMACS))
 bind_key('T', 'Launch iTerm2', mash, () => App.focusOrStart(ITERM))
 bind_key('B', 'Launch Browser', mash, () => App.focusOrStart(FIREFOX))
@@ -744,32 +744,32 @@ bind_key('[', 'Reduce Grid Rows', mash, () => changeGridHeight(-1))
 Snap current window or all windows to the grid
 
 ```js @code
-bind_key(';', 'Snap focused to grid', mash, () => focused().snapToGrid())
-bind_key("'", 'Snap all to grid', mash, function(){ visible().map(win => win.snapToGrid()) })
+bind_key(';', 'Snap focused to grid', smash, () => focused().snapToGrid())
+bind_key("'", 'Snap all to grid', smash, function(){ visible().map(win => win.snapToGrid()) })
 ```
 
 Move the current window around the grid
 
 ```js @code
-bind_key('H', 'Move Grid Left', mash, windowLeftOneColumn)
-bind_key('J', 'Move Grid Down', mash, windowDownOneRow)
-bind_key('K', 'Move Grid Up', mash, windowUpOneRow)
-bind_key('L', 'Move Grid Right', mash, windowRightOneColumn)
-bind_key('6', 'Move Grid Left', mash, windowLeftOneColumn)
-bind_key('7', 'Move Grid Down', mash, windowDownOneRow)
-bind_key('8', 'Move Grid Up', mash, windowUpOneRow)
-bind_key('9', 'Move Grid Right', mash, windowRightOneColumn)
+bind_key('H', 'Move Grid Left', smash, windowLeftOneColumn)
+bind_key('J', 'Move Grid Down', smash, windowDownOneRow)
+bind_key('K', 'Move Grid Up', smash, windowUpOneRow)
+bind_key('L', 'Move Grid Right', smash, windowRightOneColumn)
+bind_key('6', 'Move Grid Left', smash, windowLeftOneColumn)
+bind_key('7', 'Move Grid Down', smash, windowDownOneRow)
+bind_key('8', 'Move Grid Up', smash, windowUpOneRow)
+bind_key('9', 'Move Grid Right', smash, windowRightOneColumn)
 ```
 
 Size the current window on the grid
 
 ```js @code
-bind_key('U', 'Window Full Height', mash, windowToFullHeight)
-bind_key('Y', 'Window Full Height', mash, windowToFullWidth)
-bind_key('I', 'Shrink by One Column', mash, windowShrinkOneGridColumn)
-bind_key('O', 'Grow by One Column', mash, windowGrowOneGridColumn)
-bind_key(',', 'Shrink by One Row', mash, windowShrinkOneGridRow)
-bind_key('.', 'Grow by One Row', mash, windowGrowOneGridRow)
+bind_key('U', 'Window Full Height', smash, windowToFullHeight)
+bind_key('Y', 'Window Full Height', smash, windowToFullWidth)
+bind_key('I', 'Shrink by One Column', smash, windowShrinkOneGridColumn)
+bind_key('O', 'Grow by One Column', smash, windowGrowOneGridColumn)
+bind_key(',', 'Shrink by One Row', smash, windowShrinkOneGridRow)
+bind_key('.', 'Grow by One Row', smash, windowGrowOneGridRow)
 ```
 
 ### Markdown editing layout.
