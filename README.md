@@ -711,8 +711,8 @@ bind_key('x', 'Left Half', mash, () => focused().toRightHalf())
 Toggle maximize for the current window
 
 ```js @code
-bind_key('space', 'Maximize Window', mash, () => focused().toFullScreen())
-bind_key('return', 'Maximize Window', mash, () => focused().toFullScreen())
+bind_key('m', 'Maximize Window', mash, () => focused().toFullScreen())
+// bind_key('return', 'Maximize Window', mash, () => focused().toFullScreen())
 ```
 
 Switch to or launch apps - fix these up to use whatever Apps you want on speed dial.
@@ -777,19 +777,19 @@ bind_key('.', 'Grow by One Row', smash, windowGrowOneGridRow)
 Place Firefox and Emacs windows side-by-side.
 
 ```js @code
-bind_key('M', 'Markdown Editing', mash, () => {
+bind_key('M', 'Markdown Editing', smash, () => {
   App.focusOrStart(FIREFOX) 
   focused().toRightHalf()
   App.focusOrStart(EMACS)
   focused().toLeftHalf()
 })
 
-bind_key('M', 'Exit Markdown Editing', smash, () => {
-  App.focusOrStart(FIREFOX)
-  focused().toFullScreen(false)
-  App.focusOrStart(EMACS)
-  focused().toFullScreen(false)
-})
+// bind_key('M', 'Exit Markdown Editing', smash, () => {
+//   App.focusOrStart(FIREFOX)
+//   focused().toFullScreen(false)
+//   App.focusOrStart(EMACS)
+//   focused().toFullScreen(false)
+// })
 ```
 
 All done...
