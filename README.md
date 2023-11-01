@@ -695,10 +695,10 @@ bind_key('C', 'Center with border', mash, () => focused().toCenterWithBorder(1))
 Move to the corners of the screen
 
 ```js @code
-bind_key('Q', 'Top Left', mash, () => focused().toTopLeft())
-bind_key('A', 'Bottom Left', mash, () => focused().toBottomLeft())
-bind_key('W', 'Top Right', mash, () => focused().toTopRight())
-bind_key('S', 'Bottom Right', mash, () => focused().toBottomRight())
+bind_key('9', 'Top Left', mash, () => focused().toTopLeft())
+bind_key('r', 'Bottom Left', mash, () => focused().toBottomLeft())
+bind_key('0', 'Top Right', mash, () => focused().toTopRight())
+bind_key('l', 'Bottom Right', mash, () => focused().toBottomRight())
 ```
 
 Move to left / right half of the screen.
