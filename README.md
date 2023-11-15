@@ -57,7 +57,7 @@ Initial grid settings
 ```js @code
 MARGIN_X = 0
 MARGIN_Y = 0
-GRID_WIDTH = 16 
+GRID_WIDTH = 16
 GRID_HEIGHT = 9
 ```
 
@@ -66,9 +66,9 @@ Shortcuts for `focused` and `visible`
 ```js @code
 focused = () => Window.focused()
 
-function visible() { 
+function visible() {
   return Window.all().filter( w => {
-    if (w != undefined) { 
+    if (w != undefined) {
       return w.isVisible()
     } else {
       return false
@@ -113,7 +113,7 @@ Get the grid box size
 
 ```js @code
 Window.prototype.getBoxSize = function() {
-  return [this.screenFrame().width / GRID_WIDTH, 
+  return [this.screenFrame().width / GRID_WIDTH,
           this.screenFrame().height / GRID_HEIGHT]
 }
 ```
@@ -121,14 +121,14 @@ Window.prototype.getBoxSize = function() {
 Get the current window `grid` as `rect`:
 
 ```js
-// rectangle 
+// rectangle
 {x: float, y: float, width: float, height: float}
 ```
 
 ```js @code
 Window.prototype.getGrid = function() {
   let frame = this.frame()
-  let [boxHeight, boxWidth] = this.getBoxSize() 
+  let [boxHeight, boxWidth] = this.getBoxSize()
   let grid = {
     y: Math.round((frame.y - this.screenFrame().y) / boxHeight),
     x: Math.round((frame.x - this.screenFrame().x) / boxWidth),
@@ -468,11 +468,11 @@ To the center of the screen with a grid border.
 ```js @code
 Window.prototype.toCenterWithBorder = function(border = 1) {
   let [boxWidth, boxHeight] = this.getBoxSize()
-  let rect = { 
+  let rect = {
                x: border,
-               y: border, 
-               width: GRID_WIDTH - (border * 2), 
-               height: GRID_HEIGHT - (border * 2) 
+               y: border,
+               width: GRID_WIDTH - (border * 2),
+               height: GRID_HEIGHT - (border * 2)
              }
   this.setGrid(rect)
 }
@@ -597,18 +597,18 @@ Focus or start an app with `name`
 ```js @code
 App.focusOrStart = name => {
   let apps = App.allWithName(name)
-  
+
   if (_.isEmpty(apps)) {
     App.launch(name)
   }
-  
+
   let windows = _.flatmap(apps, x => x.windows())
   let activeWindows = _.reject(windows, win => win.isMinimized())
-  
+
   if (_.isEmpty(activeWindows)) {
     App.launch(name)
   }
-  
+
   return _.each(activeWindows, win => win.focus())
 }
 ```
