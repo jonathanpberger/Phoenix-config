@@ -620,8 +620,13 @@ Launch apps
 ```js @code
 ITERM = "iTerm2"
 EMACS = "Emacs"
+EDITOR = "VS Code"
 FINDER = "Finder"
 FIREFOX = "Firefox"
+GITHUB = "Github"
+STRANGELOVE = "Strangelove"
+JPB = "JPB"
+SLACK = "Slack"
 ```
 
 ### App Name Modal
@@ -781,6 +786,7 @@ Place Firefox and Emacs windows side-by-side.
   // App.focusOrStart(FIREFOX)
   // focused().toRightHalf()
   // App.focusOrStart(EMACS)
+  // App.focusOrStart(VS Code)
   // focused().toLeftHalf()
 // })
 
@@ -788,6 +794,7 @@ Place Firefox and Emacs windows side-by-side.
 //   App.focusOrStart(FIREFOX)
 //   focused().toFullScreen(false)
 //   App.focusOrStart(EMACS)
+//   App.focusOrStart(VS Code)
 //   focused().toFullScreen(false)
 // })
 ```
