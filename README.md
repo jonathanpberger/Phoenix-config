@@ -729,16 +729,16 @@ Move window between screens
 
 ```js @code
 bind_key('N', 'To Next Screen', mash, moveWindowToNextScreen)
-bind_key('P', 'To Previous Screen', mash, moveWindowToPreviousScreen)
+// bind_key('P', 'To Previous Screen', mash, moveWindowToPreviousScreen)
 ```
 
 Setting the grid size
 
 ```js @code
-bind_key('=', 'Increase Grid Columns', mash, () => changeGridWidth(+1))
-bind_key('-', 'Reduce Grid Columns', mash, () => changeGridWidth(-1))
-bind_key(']', 'Increase Grid Rows', mash, () => changeGridHeight(+1))
-bind_key('[', 'Reduce Grid Rows', mash, () => changeGridHeight(-1))
+// bind_key('=', 'Increase Grid Columns', mash, () => changeGridWidth(+1))
+// bind_key('-', 'Reduce Grid Columns', mash, () => changeGridWidth(-1))
+// bind_key(']', 'Increase Grid Rows', mash, () => changeGridHeight(+1))
+// bind_key('[', 'Reduce Grid Rows', mash, () => changeGridHeight(-1))
 ```
 
 Snap current window or all windows to the grid
@@ -751,25 +751,25 @@ bind_key("'", 'Snap all to grid', smash, function(){ visible().map(win => win.sn
 Move the current window around the grid
 
 ```js @code
-bind_key('H', 'Move Grid Left', smash, windowLeftOneColumn)
-bind_key('J', 'Move Grid Down', smash, windowDownOneRow)
-bind_key('K', 'Move Grid Up', smash, windowUpOneRow)
-bind_key('L', 'Move Grid Right', smash, windowRightOneColumn)
-bind_key('6', 'Move Grid Left', smash, windowLeftOneColumn)
-bind_key('7', 'Move Grid Down', smash, windowDownOneRow)
-bind_key('8', 'Move Grid Up', smash, windowUpOneRow)
-bind_key('9', 'Move Grid Right', smash, windowRightOneColumn)
+// bind_key('H', 'Move Grid Left', smash, windowLeftOneColumn)
+// bind_key('J', 'Move Grid Down', smash, windowDownOneRow)
+// bind_key('K', 'Move Grid Up', smash, windowUpOneRow)
+// bind_key('L', 'Move Grid Right', smash, windowRightOneColumn)
+// bind_key('6', 'Move Grid Left', smash, windowLeftOneColumn)
+// bind_key('7', 'Move Grid Down', smash, windowDownOneRow)
+// bind_key('8', 'Move Grid Up', smash, windowUpOneRow)
+// bind_key('9', 'Move Grid Right', smash, windowRightOneColumn)
 ```
 
 Size the current window on the grid
 
 ```js @code
-bind_key('U', 'Window Full Height', smash, windowToFullHeight)
-bind_key('Y', 'Window Full Height', smash, windowToFullWidth)
-bind_key('I', 'Shrink by One Column', smash, windowShrinkOneGridColumn)
-bind_key('O', 'Grow by One Column', smash, windowGrowOneGridColumn)
-bind_key(',', 'Shrink by One Row', smash, windowShrinkOneGridRow)
-bind_key('.', 'Grow by One Row', smash, windowGrowOneGridRow)
+// bind_key('U', 'Window Full Height', smash, windowToFullHeight)
+// bind_key('Y', 'Window Full Height', smash, windowToFullWidth)
+// bind_key('I', 'Shrink by One Column', smash, windowShrinkOneGridColumn)
+// bind_key('O', 'Grow by One Column', smash, windowGrowOneGridColumn)
+// bind_key(',', 'Shrink by One Row', smash, windowShrinkOneGridRow)
+// bind_key('.', 'Grow by One Row', smash, windowGrowOneGridRow)
 ```
 
 ### Markdown editing layout.
@@ -777,12 +777,12 @@ bind_key('.', 'Grow by One Row', smash, windowGrowOneGridRow)
 Place Firefox and Emacs windows side-by-side.
 
 ```js @code
-bind_key('M', 'Markdown Editing', smash, () => {
-  App.focusOrStart(FIREFOX) 
-  focused().toRightHalf()
-  App.focusOrStart(EMACS)
-  focused().toLeftHalf()
-})
+// bind_key('M', 'Markdown Editing', smash, () => {
+  // App.focusOrStart(FIREFOX)
+  // focused().toRightHalf()
+  // App.focusOrStart(EMACS)
+  // focused().toLeftHalf()
+// })
 
 // bind_key('M', 'Exit Markdown Editing', smash, () => {
 //   App.focusOrStart(FIREFOX)
