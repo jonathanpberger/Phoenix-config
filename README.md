@@ -755,12 +755,13 @@ bind_key('left', 'Left side toggle', smash, () => focused().toLeftToggle())
 bind_key('right', 'Right side toggle', smash, () => focused().toRightToggle())
 ```
 
+<!--
 Move to the center of the screen as a square
-Move to left / right half of the screen.
 
 ```js @code
-bind_key('C', 'Center with border', mash, () => focused().toCenterWithBorder(1))
+// bind_key('C', 'Center with border', mash, () => focused().toCenterWithBorder(1))
 ```
+-->
 
 Move to the corners of the screen
 
