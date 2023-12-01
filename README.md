@@ -766,17 +766,29 @@ Move to the center of the screen as a square
 Move to the corners of the screen
 
 ```js @code
-bind_key('9', 'Top Left', mash, () => focused().toTopLeft())
-bind_key('r', 'Bottom Left', mash, () => focused().toBottomLeft())
-bind_key('0', 'Top Right', mash, () => focused().toTopRight())
-bind_key('l', 'Bottom Right', mash, () => focused().toBottomRight())
-```
+bind_key('9', 'Top Left', smash, () => {
+  const focusedApp = focused();
+  Phoenix.log('Moving to Top Left');
+  focusedApp.toTopLeft();
+});
 
-Move to left / right half of the screen.
+bind_key('r', 'Bottom Left', smash, () => {
+  const focusedApp = focused();
+  Phoenix.log('Moving to Bottom Left');
+  focusedApp.toBottomLeft();
+});
 
-```js @code
-bind_key('z', 'Right Half', mash, () => focused().toLeftHalf())
-bind_key('x', 'Left Half', mash, () => focused().toRightHalf())
+bind_key('0', 'Top Right', smash, () => {
+  const focusedApp = focused();
+  Phoenix.log('Moving to Top Right');
+  focusedApp.toTopRight();
+});
+
+bind_key('l', 'Bottom Right', smash, () => {
+  const focusedApp = focused();
+  Phoenix.log('Moving to Bottom Right');
+  focusedApp.toBottomRight();
+});
 ```
 
 Toggle maximize for the current window
