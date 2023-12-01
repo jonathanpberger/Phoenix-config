@@ -295,6 +295,30 @@ Window.prototype.togglingWidth = function() {
 }
 ```
 
+<a name="toggling-height"/>
+Toggle window height 80%, 50%, 30%
+
+```js @code
+Window.prototype.togglingHeight = function() {
+  let s_h = this.screenFrame().height;  // Screen height
+  let w_h = this.frame().height;        // Window height
+  let proportion = w_h / s_h;           // Current height proportion
+
+  Phoenix.log(`Screen height: ${s_h}, Window height: ${w_h}, Proportion: ${proportion}`);
+
+  if (proportion >= 0.65 && proportion < 0.85) {
+    Phoenix.log("Toggling height to 33%");
+    return 0.33;
+  } else if (proportion >= 0.45 && proportion < 0.65) {
+    Phoenix.log("Toggling height to 67%");
+    return 0.67;
+  } else {
+    Phoenix.log("Toggling height to 50%");
+    return 0.5;  // Default to 50% if not in the other ranges
+  }
+};
+```
+
 #### Screen halves
 
 ``` text
@@ -388,6 +412,37 @@ Window.prototype.toRightToggle = function() {
     height: 1
   })
 }
+```
+
+```js @code
+Window.prototype.toTopToggle = function() {
+  let heightProportion = this.togglingHeight();
+  Phoenix.log(`Setting top toggle height to ${heightProportion * 100}% of screen`);
+
+  let result = this.toGrid({
+    x: 0,
+    y: 0,  // Keep y coordinate at 0 for the top of the screen
+    width: 1,
+    height: heightProportion  // Adjust height proportionally
+  });
+
+  Phoenix.log(`toTopToggle set frame: ${JSON.stringify(result.frame())}`);
+  return result;
+};
+Window.prototype.toBottomToggle = function() {
+  let heightProportion = this.togglingHeight();
+  Phoenix.log(`Setting bottom toggle height to ${heightProportion * 100}% of screen`);
+
+  let result = this.toGrid({
+    x: 0,
+    y: 1 - heightProportion,  // Set y coordinate based on the remaining space
+    width: 1,
+    height: heightProportion
+  });
+
+  Phoenix.log(`toBottomToggle set frame: ${JSON.stringify(result.frame())}`);
+  return result;
+};
 ```
 
 #### To screen corners
@@ -687,11 +742,21 @@ and fill it.
 ```js @code
 bind_key('up', 'Top Half', mash, () => focused().toTopHalf())
 bind_key('down', 'Bottom Half', mash, () => focused().toBottomHalf())
-bind_key('left', 'Left side toggle', mash, () => focused().toLeftToggle())
-bind_key('right', 'Right side toggle', mash, () => focused().toRightToggle())
+bind_key('left', 'Left Half', mash, () => focused().toLeftHalf())
+bind_key('right', 'Right Half', mash, () => focused().toRightHalf())
+```
+
+Toggle through 1/3, 1/2, and 2/3rd of screen with SMASH.
+
+```js @code
+bind_key('up', 'Top Half', smash, () => focused().toTopToggle())
+bind_key('down', 'Bottom Half', smash, () => focused().toBottomToggle())
+bind_key('left', 'Left side toggle', smash, () => focused().toLeftToggle())
+bind_key('right', 'Right side toggle', smash, () => focused().toRightToggle())
 ```
 
 Move to the center of the screen as a square
+Move to left / right half of the screen.
 
 ```js @code
 bind_key('C', 'Center with border', mash, () => focused().toCenterWithBorder(1))
