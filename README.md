@@ -668,23 +668,6 @@ App.focusOrStart = name => {
 }
 ```
 
-# Applications
-
-Launch apps
-
-```js @code
-CALENDAR = "Google Calendar"
-EDITOR = "VS Code"
-EMACS = "Emacs"
-FINDER = "Finder"
-FIREFOX = "Firefox"
-GITHUB = "Github"
-ITERM = "iTerm2"
-JPB = "JPB"
-SLACK = "Slack"
-STRANGELOVE = "Strangelove"
-```
-
 ### App Name Modal
 
 Show App name.  To be honest, I just added this to see the modal feature in Phoenix.
@@ -703,6 +686,15 @@ let showAppName = () => {
   }
   modal.show()
 }
+
+// Helper function to combine app focus/start and showing the app name
+function focusAppAndShowName(appFunction) {
+    return () => {
+        appFunction();
+        Timer.after(0.1, showAppName); // Adding a slight delay for the app to focus
+    };
+}
+
 ```
 
 (It's  pretty cool, but it's clearly a bezel ;)
@@ -799,15 +791,39 @@ bind_key('m', 'Maximize Window', mash, () => focused().toFullScreen())
 // bind_key('return', 'Maximize Window', mash, () => focused().toFullScreen())
 ```
 
+# Applications
+
+Launch apps
+
+```js @code
+CALENDAR = "Google Calendar"
+EDITOR = "Code"
+EMACS = "Emacs"
+FINDER = "Finder"
+FIREFOX = "Firefox"
+GITHUB = "GitHub"
+ITERM = "iTerm2"
+JPB = "JPB"
+SLACK = "Slack"
+STRANGELOVE = "strangelove"
+```
+
+
 Switch to or launch apps - fix these up to use whatever Apps you want on speed dial.
 
 ```js @code
 bind_key('1', 'Show App Name', mash, showAppName)
-bind_key('f1', 'Launch Editor', mash, () => App.focusOrStart(EDITOR))
-bind_key('f2', 'Launch iTerm2', mash, () => App.focusOrStart(ITERM))
-bind_key('f3', 'Launch Browser', mash, () => App.focusOrStart(FIREFOX))
-bind_key('f4', 'Launch Finder', mash, () => App.focusOrStart(FINDER))
-bind_key('f5', 'Launch Emacs', mash, () => App.focusOrStart(EMACS))
+
+bind_key('f1', 'Launch Editor', mash, focusAppAndShowName(() => App.focusOrStart(EDITOR)));
+bind_key('f2', 'Launch Github', mash, focusAppAndShowName(() => App.focusOrStart(GITHUB)));
+bind_key('f3', 'Launch iTerm2', mash, focusAppAndShowName(() => App.focusOrStart(ITERM)));
+// bind_key('f4', 'Launch ??? ', mash, focusAppAndShowName(() => App.focusOrStart(???)));
+bind_key('f5', 'Launch Strangelove', mash, focusAppAndShowName(() => App.focusOrStart(STRANGELOVE)));
+bind_key('f6', 'Launch JPB', mash, focusAppAndShowName(() => App.focusOrStart(JPB)));
+bind_key('f7', 'Launch Browser', mash, focusAppAndShowName(() => App.focusOrStart(FIREFOX)));
+bind_key('f8', 'Launch gCal', mash, focusAppAndShowName(() => App.focusOrStart(CALENDAR)));
+bind_key('f9', 'Launch Slack', mash, focusAppAndShowName(() => App.focusOrStart(SLACK)));
+
 ```
 
 Move window between screens
