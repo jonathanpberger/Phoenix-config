@@ -673,15 +673,16 @@ App.focusOrStart = name => {
 Launch apps
 
 ```js @code
-ITERM = "iTerm2"
-EMACS = "Emacs"
+CALENDAR = "Google Calendar"
 EDITOR = "VS Code"
+EMACS = "Emacs"
 FINDER = "Finder"
 FIREFOX = "Firefox"
 GITHUB = "Github"
-STRANGELOVE = "Strangelove"
+ITERM = "iTerm2"
 JPB = "JPB"
 SLACK = "Slack"
+STRANGELOVE = "Strangelove"
 ```
 
 ### App Name Modal
@@ -801,11 +802,12 @@ bind_key('m', 'Maximize Window', mash, () => focused().toFullScreen())
 Switch to or launch apps - fix these up to use whatever Apps you want on speed dial.
 
 ```js @code
-bind_key('1', 'Show App Name', smash, showAppName)
-bind_key('E', 'Launch Emacs', mash, () => App.focusOrStart(EMACS))
-bind_key('T', 'Launch iTerm2', mash, () => App.focusOrStart(ITERM))
-bind_key('B', 'Launch Browser', mash, () => App.focusOrStart(FIREFOX))
-bind_key('F', 'Launch Finder', mash, () => App.focusOrStart(FINDER))
+bind_key('1', 'Show App Name', mash, showAppName)
+bind_key('f1', 'Launch Editor', mash, () => App.focusOrStart(EDITOR))
+bind_key('f2', 'Launch iTerm2', mash, () => App.focusOrStart(ITERM))
+bind_key('f3', 'Launch Browser', mash, () => App.focusOrStart(FIREFOX))
+bind_key('f4', 'Launch Finder', mash, () => App.focusOrStart(FINDER))
+bind_key('f5', 'Launch Emacs', mash, () => App.focusOrStart(EMACS))
 ```
 
 Move window between screens
