@@ -360,6 +360,10 @@ Window.prototype.toRightHalf = function() {
   return this.toGrid({x: 0.5, y: 0, width: 0.5, height: 1})
 }
 
+Window.prototype.toCenterThird = function() {
+  return this.toGrid({x: 0.33, y: 0, width: 0.33, height: 1})
+}
+
 ```
 
 #### Left/Right Sides with [toggling width](#toggling-width).
@@ -746,6 +750,12 @@ bind_key('up', 'Top Half', smash, () => focused().toTopToggle())
 bind_key('down', 'Bottom Half', smash, () => focused().toBottomToggle())
 bind_key('left', 'Left side toggle', smash, () => focused().toLeftToggle())
 bind_key('right', 'Right side toggle', smash, () => focused().toRightToggle())
+```
+
+Move to the center third of the screen, full height.(Usually for use w/ left- and right-toggle at 1/3rd.)
+
+```js @code
+bind_key('C', 'Center third', smash, () => focused().toCenterThird())
 ```
 
 <!--
