@@ -814,6 +814,7 @@ FIREFOX = "Firefox"
 GITHUB = "GitHub"
 ITERM = "iTerm2"
 JPB = "JPB"
+MESSAGES = "Messages"
 SLACK = "Slack"
 STRANGELOVE = "strangelove"
 ```
@@ -822,17 +823,18 @@ STRANGELOVE = "strangelove"
 Switch to or launch apps - fix these up to use whatever Apps you want on speed dial.
 
 ```js @code
-bind_key('1', 'Show App Name', mash, showAppName)
+bind_key('1', 'Show App Name', smash, showAppName)
 
-bind_key('f1', 'Launch Editor', mash, focusAppAndShowName(() => App.focusOrStart(EDITOR)));
-bind_key('f2', 'Launch Github', mash, focusAppAndShowName(() => App.focusOrStart(GITHUB)));
-bind_key('f3', 'Launch iTerm2', mash, focusAppAndShowName(() => App.focusOrStart(ITERM)));
-// bind_key('f4', 'Launch ??? ', mash, focusAppAndShowName(() => App.focusOrStart(???)));
-bind_key('f5', 'Launch Strangelove', mash, focusAppAndShowName(() => App.focusOrStart(STRANGELOVE)));
+// bind_key('f1', 'Launch ??? ', mash, focusAppAndShowName(() => App.focusOrStart(???)));
+bind_key('f2', 'Launch Messages', mash, focusAppAndShowName(() => App.focusOrStart(MESSAGES)));
+bind_key('f3', 'Launch Slack', mash, focusAppAndShowName(() => App.focusOrStart(SLACK)));
+bind_key('f4', 'Launch Browser', mash, focusAppAndShowName(() => App.focusOrStart(FIREFOX)));
+bind_key('f5', 'Launch gCal', mash, focusAppAndShowName(() => App.focusOrStart(CALENDAR)));
 bind_key('f6', 'Launch JPB', mash, focusAppAndShowName(() => App.focusOrStart(JPB)));
-bind_key('f7', 'Launch Browser', mash, focusAppAndShowName(() => App.focusOrStart(FIREFOX)));
-bind_key('f8', 'Launch gCal', mash, focusAppAndShowName(() => App.focusOrStart(CALENDAR)));
-bind_key('f9', 'Launch Slack', mash, focusAppAndShowName(() => App.focusOrStart(SLACK)));
+bind_key('f7', 'Launch Strangelove', mash, focusAppAndShowName(() => App.focusOrStart(STRANGELOVE)));
+bind_key('f8', 'Launch Github', mash, focusAppAndShowName(() => App.focusOrStart(GITHUB)));
+bind_key('f9', 'Launch Editor', mash, focusAppAndShowName(() => App.focusOrStart(EDITOR)));
+bind_key('f10', 'Launch iTerm2', mash, focusAppAndShowName(() => App.focusOrStart(ITERM)));
 
 ```
 
