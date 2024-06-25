@@ -815,6 +815,7 @@ GITHUB = "GitHub"
 ITERM = "iTerm2"
 JPB = "JPB"
 MESSAGES = "Messages"
+ROAM = "Roam"
 SLACK = "Slack"
 STRANGELOVE = "strangelove"
 ```
@@ -825,7 +826,7 @@ Switch to or launch apps - fix these up to use whatever Apps you want on speed d
 ```js @code
 bind_key('1', 'Show App Name', smash, showAppName)
 
-// bind_key('f1', 'Launch ??? ', mash, focusAppAndShowName(() => App.focusOrStart(???)));
+bind_key('f1', 'Launch ??? ', mash, focusAppAndShowName(() => App.focusOrStart(ROAM)));
 bind_key('f2', 'Launch Messages', mash, focusAppAndShowName(() => App.focusOrStart(MESSAGES)));
 bind_key('f3', 'Launch Slack', mash, focusAppAndShowName(() => App.focusOrStart(SLACK)));
 bind_key('f4', 'Launch Browser', mash, focusAppAndShowName(() => App.focusOrStart(FIREFOX)));
