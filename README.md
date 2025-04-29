@@ -808,7 +808,7 @@ Launch apps
 ```js @code
 CALENDAR = "Google Calendar"
 EDITOR = "Code"
-EMACS = "Emacs"
+CURSOR = "Cursor"
 FINDER = "Finder"
 FIREFOX = "Firefox"
 GITHUB = "GitHub"
@@ -817,7 +817,7 @@ JPB = "JPB"
 MESSAGES = "Messages"
 ROAM = "Roam"
 SLACK = "Slack"
-STRANGELOVE = "strangelove"
+DW = "DiscoW"
 ```
 
 
@@ -826,13 +826,13 @@ Switch to or launch apps - fix these up to use whatever Apps you want on speed d
 ```js @code
 bind_key('1', 'Show App Name', smash, showAppName)
 
-bind_key('f1', 'Launch ??? ', mash, focusAppAndShowName(() => App.focusOrStart(ROAM)));
+bind_key('f1', 'Launch ??? ', mash, focusAppAndShowName(() => App.focusOrStart(CURSOR)));
 bind_key('f2', 'Launch Messages', mash, focusAppAndShowName(() => App.focusOrStart(MESSAGES)));
 bind_key('f3', 'Launch Slack', mash, focusAppAndShowName(() => App.focusOrStart(SLACK)));
 bind_key('f4', 'Launch Browser', mash, focusAppAndShowName(() => App.focusOrStart(FIREFOX)));
 bind_key('f5', 'Launch gCal', mash, focusAppAndShowName(() => App.focusOrStart(CALENDAR)));
 bind_key('f6', 'Launch JPB', mash, focusAppAndShowName(() => App.focusOrStart(JPB)));
-bind_key('f7', 'Launch Strangelove', mash, focusAppAndShowName(() => App.focusOrStart(STRANGELOVE)));
+bind_key('f7', 'Launch DW', mash, focusAppAndShowName(() => App.focusOrStart(DW)));
 bind_key('f8', 'Launch Github', mash, focusAppAndShowName(() => App.focusOrStart(GITHUB)));
 bind_key('f9', 'Launch Editor', mash, focusAppAndShowName(() => App.focusOrStart(EDITOR)));
 bind_key('f10', 'Launch iTerm2', mash, focusAppAndShowName(() => App.focusOrStart(ITERM)));
@@ -906,6 +906,123 @@ Place Firefox and Emacs windows side-by-side.
 //   App.focusOrStart(VS Code)
 //   focused().toFullScreen(false)
 // })
+```
+
+### Custom Layouts
+
+```js @code
+// Layout Management System
+// Define layouts as data objects for easy creation and modification
+
+// Layout registry - stores all defined layouts
+const LAYOUTS = {}
+
+// Layout positions - preset positions that can be used in layouts
+const POSITIONS = {
+  FULL: { x: 0, y: 0, width: 1, height: 1 },
+  LEFT_HALF: { x: 0, y: 0, width: 0.5, height: 1 },
+  RIGHT_HALF: { x: 0.5, y: 0, width: 0.5, height: 1 },
+  TOP_HALF: { x: 0, y: 0, width: 1, height: 0.5 },
+  BOTTOM_HALF: { x: 0, y: 0.5, width: 1, height: 0.5 },
+  TOP_LEFT: { x: 0, y: 0, width: 0.5, height: 0.5 },
+  TOP_RIGHT: { x: 0.5, y: 0, width: 0.5, height: 0.5 },
+  BOTTOM_LEFT: { x: 0, y: 0.5, width: 0.5, height: 0.5 },
+  BOTTOM_RIGHT: { x: 0.5, y: 0.5, width: 0.5, height: 0.5 },
+  CENTER_THIRD: { x: 0.33, y: 0, width: 0.33, height: 1 },
+  LEFT_THIRD: { x: 0, y: 0, width: 0.33, height: 1 },
+  RIGHT_THIRD: { x: 0.67, y: 0, width: 0.33, height: 1 },
+  TOP_THIRD: { x: 0, y: 0, width: 1, height: 0.33 },
+  MIDDLE_THIRD: { x: 0, y: 0.33, width: 1, height: 0.33 },
+  BOTTOM_THIRD: { x: 0, y: 0.67, width: 1, height: 0.33 }
+}
+
+// Function to register a new layout
+function registerLayout(name, windows) {
+  LAYOUTS[name] = windows
+  Phoenix.log(`Layout registered: ${name}`)
+  return LAYOUTS[name]
+}
+
+// Function to apply a registered layout
+function applyLayout(layoutName) {
+  const layout = LAYOUTS[layoutName]
+  if (!layout) {
+    Phoenix.notify(`Layout "${layoutName}" not found`)
+    return
+  }
+
+  // Launch all apps first to speed up the process
+  layout.forEach(item => App.launch(item.app))
+
+  // Position all windows after a short delay
+  Timer.after(0.1, () => {
+    layout.forEach(item => {
+      const apps = App.allWithName(item.app)
+      if (!_.isEmpty(apps)) {
+        const windows = _.flatmap(apps, app => app.windows())
+        if (!_.isEmpty(windows)) {
+          // Get the window to position (first or specific one by title)
+          let window = _.first(windows)
+          if (item.title) {
+            const matchedWindow = _.find(windows, win => win.title().includes(item.title))
+            if (matchedWindow) window = matchedWindow
+          }
+
+          // Apply the position
+          window.toGrid(item.position)
+        }
+      }
+    })
+
+    Phoenix.notify(`Layout "${layoutName}" applied`)
+  })
+}
+
+// Function to bind a layout to a key
+function bindLayout(key, layoutName, modifiers = smash) {
+  bind_key(key, `Apply ${layoutName} Layout`, modifiers, () => applyLayout(layoutName))
+  Phoenix.log(`Layout "${layoutName}" bound to key "${key}"`)
+}
+
+// Define some example layouts
+// Work Layout (JPB in top-left, Editor on right, Messages in bottom-left)
+registerLayout('work', [
+  { app: JPB, position: POSITIONS.TOP_LEFT },
+  { app: EDITOR, position: POSITIONS.RIGHT_HALF },
+  { app: MESSAGES, position: POSITIONS.BOTTOM_LEFT }
+])
+
+// Coding Layout (Editor on left, Browser on right)
+registerLayout('coding', [
+  { app: EDITOR, position: POSITIONS.LEFT_HALF },
+  { app: FIREFOX, position: POSITIONS.RIGHT_HALF }
+])
+
+// Communication Layout (Messages on left, Slack on right)
+registerLayout('communication', [
+  { app: MESSAGES, position: POSITIONS.LEFT_HALF },
+  { app: SLACK, position: POSITIONS.RIGHT_HALF }
+])
+
+// Full Screen Focus Layout (Editor maximized)
+registerLayout('focus', [
+  { app: EDITOR, position: POSITIONS.FULL }
+])
+
+// Bind layouts to keys
+bindLayout('1', 'work')
+bindLayout('2', 'coding')
+bindLayout('3', 'communication')
+bindLayout('4', 'focus')
+
+// You can easily add more layouts and bindings!
+// Example of how to add a custom layout:
+//
+// registerLayout('custom', [
+//   { app: APP_NAME, position: POSITIONS.CUSTOM_POSITION },
+//   { app: ANOTHER_APP, position: { x: 0.25, y: 0.25, width: 0.5, height: 0.5 } }
+// ])
+// bindLayout('5', 'custom')
 ```
 
 All done...
