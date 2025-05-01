@@ -801,7 +801,7 @@ bind_key('m', 'Maximize Window', mash, () => focused().toFullScreen())
 // bind_key('return', 'Maximize Window', mash, () => focused().toFullScreen())
 ```
 
-# Applications
+# Launch Applications
 
 Launch apps
 
@@ -818,6 +818,8 @@ MESSAGES = "Messages"
 ROAM = "Roam"
 SLACK = "Slack"
 DW = "DiscoW"
+WHATSAPP = "WhatsApp"
+GMAIL = "Gmail"
 ```
 
 
@@ -908,7 +910,7 @@ Place Firefox and Emacs windows side-by-side.
 // })
 ```
 
-### Custom Layouts
+# Custom Layouts
 
 ```js @code
 // Layout Management System
@@ -916,6 +918,32 @@ Place Firefox and Emacs windows side-by-side.
 
 // Layout registry - stores all defined layouts
 const LAYOUTS = {}
+
+// Screen identification helpers
+const SCREENS = {
+  // Get screens by position
+  PRIMARY: () => Screen.main(),
+  LAPTOP: () => Screen.main(),
+  LEFT: () => _.find(Screen.all(), s => s.frame().x < Screen.main().frame().x),
+  RIGHT: () => _.find(Screen.all(), s => s.frame().x > Screen.main().frame().x),
+  TOP: () => _.find(Screen.all(), s => s.frame().y < Screen.main().frame().y),
+  BOTTOM: () => _.find(Screen.all(), s => s.frame().y > Screen.main().frame().y),
+
+  // Get screen by index (0-based)
+  at: (index) => {
+    const screens = Screen.all();
+    return index >= 0 && index < screens.length ? screens[index] : Screen.main();
+  },
+
+  // Log info about all screens for debugging
+  logAll: () => {
+    const screens = Screen.all();
+    screens.forEach((screen, i) => {
+      const frame = screen.frame();
+      Phoenix.log(`Screen ${i}: x=${frame.x}, y=${frame.y}, width=${frame.width}, height=${frame.height}, isMain=${screen === Screen.main()}`);
+    });
+  }
+}
 
 // Layout positions - preset positions that can be used in layouts
 const POSITIONS = {
@@ -928,22 +956,263 @@ const POSITIONS = {
   TOP_RIGHT: { x: 0.5, y: 0, width: 0.5, height: 0.5 },
   BOTTOM_LEFT: { x: 0, y: 0.5, width: 0.5, height: 0.5 },
   BOTTOM_RIGHT: { x: 0.5, y: 0.5, width: 0.5, height: 0.5 },
+
+  // Add quarter screen positions with descriptive names
+  TOP_LEFT_QUARTER: { x: 0, y: 0, width: 0.5, height: 0.5 },
+  TOP_RIGHT_QUARTER: { x: 0.5, y: 0, width: 0.5, height: 0.5 },
+  BOTTOM_LEFT_QUARTER: { x: 0, y: 0.5, width: 0.5, height: 0.5 },
+  BOTTOM_RIGHT_QUARTER: { x: 0.5, y: 0.5, width: 0.5, height: 0.5 },
+
+  // Full width halves (top/bottom)
+  TOP: { x: 0, y: 0, width: 1, height: 0.5 },
+  BOTTOM: { x: 0, y: 0.5, width: 1, height: 0.5 },
+
   CENTER_THIRD: { x: 0.33, y: 0, width: 0.33, height: 1 },
   LEFT_THIRD: { x: 0, y: 0, width: 0.33, height: 1 },
   RIGHT_THIRD: { x: 0.67, y: 0, width: 0.33, height: 1 },
   TOP_THIRD: { x: 0, y: 0, width: 1, height: 0.33 },
   MIDDLE_THIRD: { x: 0, y: 0.33, width: 1, height: 0.33 },
-  BOTTOM_THIRD: { x: 0, y: 0.67, width: 1, height: 0.33 }
+  BOTTOM_THIRD: { x: 0, y: 0.67, width: 1, height: 0.33 },
+  // Add a position for chat apps like Pivotal (small floating window)
+  CHAT_WINDOW: { x: 0.1, y: 0.1, width: 0.3, height: 0.7 },
+  CONSOLE_WINDOW: { x: 0.05, y: 0.1, width: 0.9, height: 0.8 }
 }
 
-// Function to register a new layout
+// Enhanced window positioning helper that ensures proper fullscreen
+Window.prototype.fullScreenApp = function(screen) {
+  screen = screen || this.screen();
+  const screenFrame = screen.flippedVisibleFrame();
+
+  this.setFrame({
+    x: screenFrame.x,
+    y: screenFrame.y,
+    width: screenFrame.width,
+    height: screenFrame.height
+  });
+
+  Phoenix.log(`Positioned ${this.app().name()} to full screen: ${JSON.stringify(this.frame())}`);
+  return this;
+}
+
+// Detect the current monitor configuration
+function detectScreenConfiguration() {
+  const screens = Screen.all();
+
+  if (screens.length === 1) {
+    return "SINGLE";
+  }
+
+  if (screens.length === 2) {
+    // Check if there's a screen above (vertical arrangement)
+    if (SCREENS.TOP()) {
+      return "VERTICAL";
+    }
+    // Check if there's a screen to the left or right (monoduo)
+    if (SCREENS.LEFT() || SCREENS.RIGHT()) {
+      return "MONODUO";
+    }
+  }
+
+  if (screens.length >= 3) {
+    if (SCREENS.LEFT() && SCREENS.RIGHT()) {
+      return "TRIPLE";
+    }
+  }
+
+  // Default fallback
+  return "SINGLE";
+}
+
+// Log current screen configuration
+function logScreenConfig() {
+  const config = detectScreenConfiguration();
+  Phoenix.notify(`Current screen configuration: ${config}`);
+  SCREENS.logAll();
+}
+bind_key('8', 'Log Screen Config', smash, logScreenConfig);
+
+// Adaptive layout registry
+const ADAPTIVE_LAYOUTS = {};
+
+// Register an adaptive layout for multiple screen configurations
+function registerAdaptiveLayout(name, configLayouts) {
+  ADAPTIVE_LAYOUTS[name] = configLayouts;
+  Phoenix.log(`Adaptive layout registered: ${name}`);
+
+  // Create individual layouts for each configuration
+  Object.keys(configLayouts).forEach(config => {
+    const layoutName = `${name.toLowerCase()}_${config.toLowerCase()}`;
+    registerLayout(layoutName, configLayouts[config]);
+    Phoenix.log(`  - Variant registered: ${layoutName}`);
+  });
+
+  return ADAPTIVE_LAYOUTS[name];
+}
+
+// Apply the appropriate layout based on current screen configuration
+function applyAdaptiveLayout(layoutName) {
+  const configLayouts = ADAPTIVE_LAYOUTS[layoutName];
+  if (!configLayouts) {
+    Phoenix.notify(`Adaptive layout "${layoutName}" not found`);
+    return;
+  }
+
+  const currentConfig = detectScreenConfiguration();
+  Phoenix.log(`Detected screen configuration: ${currentConfig}`);
+
+  // Find the best layout for current configuration
+  let layout = configLayouts[currentConfig];
+
+  // If no exact match, try to fall back to SINGLE
+  if (!layout && currentConfig !== "SINGLE" && configLayouts["SINGLE"]) {
+    Phoenix.notify(`No layout for ${currentConfig}, falling back to SINGLE`);
+    layout = configLayouts["SINGLE"];
+  }
+
+  if (!layout) {
+    Phoenix.notify(`No suitable layout found for "${layoutName}" in ${currentConfig} configuration`);
+    return;
+  }
+
+  // Launch all apps first to speed up the process
+  layout.forEach(item => App.launch(item.app));
+
+  // Position all windows after a short delay
+  Timer.after(0.1, () => {
+    layout.forEach(item => {
+      const apps = App.allWithName(item.app);
+      if (!_.isEmpty(apps)) {
+        const windows = _.flatmap(apps, app => app.windows());
+        if (!_.isEmpty(windows)) {
+          // Get the window to position (first or specific one by title)
+          let window = _.first(windows);
+          if (item.title) {
+            const matchedWindow = _.find(windows, win => win.title().includes(item.title));
+            if (matchedWindow) window = matchedWindow;
+          }
+
+          // Determine which screen to use
+          let targetScreen = Screen.main();
+          if (item.screen) {
+            if (typeof item.screen === 'function') {
+              targetScreen = item.screen() || Screen.main();
+            } else if (typeof item.screen === 'number') {
+              targetScreen = SCREENS.at(item.screen) || Screen.main();
+            }
+          }
+
+          // Apply the position on the target screen
+          // Use direct full screen method for FULL position
+          if (_.isEqual(item.position, POSITIONS.FULL)) {
+            window.fullScreenApp(targetScreen);
+          } else {
+            window.setGrid(item.position, targetScreen);
+          }
+        }
+      }
+    });
+
+    Phoenix.notify(`Adaptive layout "${layoutName}" applied for ${currentConfig}`);
+  });
+}
+
+// Bind an adaptive layout to a key
+function bindAdaptiveLayout(key, layoutName, modifiers = smash) {
+  bind_key(key, `Apply ${layoutName} Layout`, modifiers, () => applyAdaptiveLayout(layoutName));
+  Phoenix.log(`Adaptive layout "${layoutName}" bound to key "${key}"`);
+}
+
+// Define adaptive layouts for different contexts
+
+// COMMUNICATION - Chat and messaging apps
+registerAdaptiveLayout("COMMUNICATION", {
+  // Single monitor setup
+  "SINGLE": [
+    { app: "Slack", position: POSITIONS.TOP },
+    { app: "Messages", position: POSITIONS.BOTTOM_LEFT_QUARTER },
+    { app: "WhatsApp", position: POSITIONS.BOTTOM_RIGHT_QUARTER }
+  ],
+
+  // Vertical setup (monitor above laptop)
+  "VERTICAL": [
+    { app: "Slack", position: POSITIONS.TOP_LEFT_QUARTER, screen: SCREENS.TOP },
+    { app: "Messages", position: POSITIONS.TOP_RIGHT_QUARTER, screen: SCREENS.TOP },
+    { app: EDITOR, position: POSITIONS.FULL, screen: SCREENS.PRIMARY }
+  ],
+
+  // Monoduo setup (external monitors on sides)
+  "MONODUO": [
+    { app: "WhatsApp", position: POSITIONS.RIGHT_HALF, screen: SCREENS.LEFT },
+    { app: "Slack", position: POSITIONS.LEFT_HALF, screen: SCREENS.LEFT },
+    { app: "Messages", position: POSITIONS.LEFT_HALF, screen: SCREENS.RIGHT },
+    { app: "Gmail", position: POSITIONS.RIGHT_HALF, screen: SCREENS.RIGHT }
+  ]
+});
+
+// DEVELOPMENT - Coding environment
+registerAdaptiveLayout("DEVELOPMENT", {
+  // Single monitor setup
+  "SINGLE": [
+    { app: EDITOR, position: POSITIONS.LEFT_HALF },
+    { app: FIREFOX, position: POSITIONS.RIGHT_HALF },
+    { app: ITERM, position: POSITIONS.BOTTOM_HALF }
+  ],
+
+  // Vertical setup (monitor above laptop)
+  "VERTICAL": [
+    { app: EDITOR, position: POSITIONS.FULL, screen: SCREENS.PRIMARY },
+    { app: FIREFOX, position: POSITIONS.FULL, screen: SCREENS.TOP },
+    { app: ITERM, position: POSITIONS.BOTTOM_HALF, screen: SCREENS.PRIMARY }
+  ],
+
+  // Monoduo setup (external monitors on sides)
+  "MONODUO": [
+    { app: EDITOR, position: POSITIONS.FULL, screen: SCREENS.PRIMARY },
+    { app: FIREFOX, position: POSITIONS.FULL, screen: SCREENS.RIGHT },
+    { app: ITERM, position: POSITIONS.FULL, screen: SCREENS.LEFT }
+  ],
+
+  // Triple monitor setup
+  "TRIPLE": [
+    { app: EDITOR, position: POSITIONS.FULL, screen: SCREENS.PRIMARY },
+    { app: FIREFOX, position: POSITIONS.FULL, screen: SCREENS.RIGHT },
+    { app: ITERM, position: POSITIONS.FULL, screen: SCREENS.LEFT }
+  ]
+});
+
+// PRESENTATION - For meetings and demos
+registerAdaptiveLayout("PRESENTATION", {
+  // Single monitor setup
+  "SINGLE": [
+    { app: FIREFOX, position: POSITIONS.FULL }
+  ],
+
+  // Vertical setup (monitor above laptop)
+  "VERTICAL": [
+    { app: FIREFOX, position: POSITIONS.FULL, screen: SCREENS.TOP },
+    { app: SLACK, position: POSITIONS.CHAT_WINDOW, screen: SCREENS.PRIMARY }
+  ],
+
+  // Monoduo setup (external monitors on sides)
+  "MONODUO": [
+    { app: FIREFOX, position: POSITIONS.FULL, screen: SCREENS.RIGHT },
+    { app: SLACK, position: POSITIONS.CHAT_WINDOW, screen: SCREENS.PRIMARY }
+  ]
+});
+
+// Bind adaptive layouts to keys
+bindAdaptiveLayout('1', 'COMMUNICATION');
+bindAdaptiveLayout('2', 'DEVELOPMENT');
+bindAdaptiveLayout('3', 'PRESENTATION');
+
+// Function to register a new layout (original function kept for compatibility)
 function registerLayout(name, windows) {
   LAYOUTS[name] = windows
   Phoenix.log(`Layout registered: ${name}`)
   return LAYOUTS[name]
 }
 
-// Function to apply a registered layout
+// Function to apply a registered layout (original function kept for compatibility)
 function applyLayout(layoutName) {
   const layout = LAYOUTS[layoutName]
   if (!layout) {
@@ -968,8 +1237,23 @@ function applyLayout(layoutName) {
             if (matchedWindow) window = matchedWindow
           }
 
-          // Apply the position
-          window.toGrid(item.position)
+          // Determine which screen to use
+          let targetScreen = Screen.main()
+          if (item.screen) {
+            if (typeof item.screen === 'function') {
+              targetScreen = item.screen() || Screen.main()
+            } else if (typeof item.screen === 'number') {
+              targetScreen = SCREENS.at(item.screen) || Screen.main()
+            }
+          }
+
+          // Apply the position on the target screen
+          // Use direct full screen method for FULL position
+          if (_.isEqual(item.position, POSITIONS.FULL)) {
+            window.fullScreenApp(targetScreen);
+          } else {
+            window.setGrid(item.position, targetScreen);
+          }
         }
       }
     })
@@ -978,51 +1262,72 @@ function applyLayout(layoutName) {
   })
 }
 
-// Function to bind a layout to a key
+// Function to bind a layout to a key (original function kept for compatibility)
 function bindLayout(key, layoutName, modifiers = smash) {
   bind_key(key, `Apply ${layoutName} Layout`, modifiers, () => applyLayout(layoutName))
   Phoenix.log(`Layout "${layoutName}" bound to key "${key}"`)
 }
 
-// Define some example layouts
-// Work Layout (JPB in top-left, Editor on right, Messages in bottom-left)
-registerLayout('work', [
-  { app: JPB, position: POSITIONS.TOP_LEFT },
-  { app: EDITOR, position: POSITIONS.RIGHT_HALF },
-  { app: MESSAGES, position: POSITIONS.BOTTOM_LEFT }
-])
+// Helper to log screen information (useful for setup)
+function logScreenInfo() {
+  SCREENS.logAll()
+  Phoenix.notify("Screen info logged to console")
+}
+bind_key('0', 'Log Screen Info', smash, logScreenInfo)
 
-// Coding Layout (Editor on left, Browser on right)
-registerLayout('coding', [
-  { app: EDITOR, position: POSITIONS.LEFT_HALF },
-  { app: FIREFOX, position: POSITIONS.RIGHT_HALF }
-])
+// Restore quarter-screen key combos
+bind_key('9', 'Top Left Quarter', smash, () => {
+  const focusedApp = focused();
+  Phoenix.log('Moving to Top Left Quarter');
+  focusedApp.toTopLeft();
+});
 
-// Communication Layout (Messages on left, Slack on right)
-registerLayout('communication', [
-  { app: MESSAGES, position: POSITIONS.LEFT_HALF },
-  { app: SLACK, position: POSITIONS.RIGHT_HALF }
-])
+bind_key('0', 'Top Right Quarter', smash, () => {
+  const focusedApp = focused();
+  Phoenix.log('Moving to Top Right Quarter');
+  focusedApp.toTopRight();
+});
 
-// Full Screen Focus Layout (Editor maximized)
-registerLayout('focus', [
-  { app: EDITOR, position: POSITIONS.FULL }
-])
+bind_key('r', 'Bottom Left Quarter', smash, () => {
+  const focusedApp = focused();
+  Phoenix.log('Moving to Bottom Left Quarter');
+  focusedApp.toBottomLeft();
+});
 
-// Bind layouts to keys
-bindLayout('1', 'work')
-bindLayout('2', 'coding')
-bindLayout('3', 'communication')
-bindLayout('4', 'focus')
+bind_key('l', 'Bottom Right Quarter', smash, () => {
+  const focusedApp = focused();
+  Phoenix.log('Moving to Bottom Right Quarter');
+  focusedApp.toBottomRight();
+});
 
-// You can easily add more layouts and bindings!
-// Example of how to add a custom layout:
-//
-// registerLayout('custom', [
-//   { app: APP_NAME, position: POSITIONS.CUSTOM_POSITION },
-//   { app: ANOTHER_APP, position: { x: 0.25, y: 0.25, width: 0.5, height: 0.5 } }
-// ])
-// bindLayout('5', 'custom')
+// Add a test function to verify app names and window management
+function testMoveWindow(appName, position) {
+  Phoenix.notify(`Testing ${appName} positioning to ${JSON.stringify(position)}...`);
+
+  let apps = App.allWithName(appName);
+  Phoenix.log(`Found ${apps.length} instances of ${appName}`);
+
+  if (!_.isEmpty(apps)) {
+    let windows = _.flatmap(apps, app => app.windows());
+    Phoenix.log(`Found ${windows.length} windows for ${appName}`);
+
+    if (!_.isEmpty(windows)) {
+      let window = _.first(windows);
+      Phoenix.log(`Positioning ${appName} window: ${window.title()}`);
+      window.setGrid(position);
+      Phoenix.notify(`Positioned ${appName} to ${JSON.stringify(position)}`);
+    } else {
+      Phoenix.notify(`No windows found for ${appName}`);
+    }
+  } else {
+    Phoenix.notify(`App ${appName} not found`);
+  }
+}
+
+// Add a testing key for individual app positioning
+bind_key('t', 'Test Slack Positioning', smash, () => testMoveWindow("Slack", POSITIONS.TOP));
+bind_key('y', 'Test WhatsApp Positioning', smash, () => testMoveWindow("WhatsApp", POSITIONS.BOTTOM_RIGHT_QUARTER));
+bind_key('u', 'Test Messages Positioning', smash, () => testMoveWindow("Messages", POSITIONS.BOTTOM_LEFT_QUARTER));
 ```
 
 All done...
